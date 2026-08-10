@@ -17,7 +17,7 @@ Customer churn refers to customers discontinuing their services.
 
 The goal of this project is to build a Machine Learning model that can identify customers who are more likely to churn, allowing businesses to take preventive retention actions.
 
-The project combines:
+This project combines:
 
 - Data preprocessing
 - Exploratory Data Analysis
@@ -31,16 +31,36 @@ The project combines:
 
 ✨ Features
 
-- Customer profile input
-- Customer service information
-- Contract and billing information
-- Churn prediction
-- Churn probability
-- Risk classification
-- Retention recommendation
-- Model performance comparison
-- Responsive web interface
-- Live cloud deployment
+- 👤 Customer profile input
+- 🛠️ Customer services and support information
+- 💳 Contract and billing information
+- 🔮 Churn prediction
+- 📈 Churn probability
+- ⚠️ Risk classification
+- 💡 Retention recommendation
+- 📊 Model performance comparison
+- 📱 Responsive web interface
+- ☁️ Live cloud deployment
+
+---
+
+🖥️ Application Screenshots
+
+👤 Customer Profile
+
+"Customer Profile" (profile.png)
+
+🛠️ Services & Support
+
+"Services & Support" (services.png)
+
+💳 Contract & Billing
+
+"Contract & Billing" (billing.png)
+
+🔮 Prediction Result
+
+"Prediction Result" (prediction-result.png)
 
 ---
 
@@ -54,25 +74,45 @@ Decision Tree| 79.4%| 63.1%| 54.0%| 58.2%| 82.7%
 Random Forest| 80.3%| 67.5%| 50.0%| 57.5%| 84.4%
 Balanced Logistic Regression| 73.9%| 50.5%| 78.3%| 61.4%| 84.2%
 
-Selected Model
+🎯 Selected Model
 
 Balanced Logistic Regression
 
 The balanced model was selected because it provides significantly higher recall for churn customers.
 
-A higher recall is useful in customer retention because the business can identify more potentially churning customers and take preventive action.
+A higher recall is useful for customer retention because the business can identify more potentially churning customers and take preventive action.
 
 ---
 
-📊 Key Result
+📊 Key Results
 
 The Balanced Logistic Regression model achieved:
 
+- Accuracy: 73.9%
+- Precision: 50.5%
 - Recall: 78.3%
-- ROC-AUC: 84.2%
 - F1 Score: 61.4%
+- ROC-AUC: 84.2%
 
 The higher recall makes the model useful for identifying potential churn customers.
+
+---
+
+🔄 Application Workflow
+
+Customer Information
+        ↓
+Data Preprocessing
+        ↓
+Machine Learning Model
+        ↓
+Churn Prediction
+        ↓
+Churn Probability
+        ↓
+Risk Classification
+        ↓
+Recommended Action
 
 ---
 
@@ -109,7 +149,12 @@ Customer-Churn-Prediction/
 ├── customer_churn_model.pkl
 ├── requirements.txt
 ├── runtime.txt
-└── README.md
+├── README.md
+│
+├── profile.png
+├── services.png
+├── billing.png
+└── prediction-result.png
 
 File Description
 
@@ -126,25 +171,40 @@ runtime.txt
 Specifies the Python runtime used for deployment.
 
 README.md
-Contains project documentation.
+Contains project documentation and application screenshots.
+
+PNG files
+Contain screenshots of the deployed web application.
 
 ---
 
-🔄 Application Workflow
+💼 Business Use Case
 
-Customer Information
-        ↓
-Data Preprocessing
-        ↓
-Machine Learning Model
-        ↓
-Churn Prediction
-        ↓
-Churn Probability
-        ↓
-Risk Classification
-        ↓
-Recommended Action
+Customer churn prediction can help businesses:
+
+- Identify customers at risk of leaving
+- Prioritize retention campaigns
+- Offer personalized incentives
+- Improve customer satisfaction
+- Reduce customer acquisition costs
+- Make data-driven retention decisions
+
+---
+
+☁️ Deployment
+
+The application is deployed using Render.
+
+The deployment process includes:
+
+1. Source code hosted on GitHub
+2. Dependencies installed using "requirements.txt"
+3. Flask application served using Gunicorn
+4. Machine Learning model loaded by the application
+5. Application deployed to a public Render URL
+
+Live Demo:
+https://customer-churn-prediction-1ivq.onrender.com/profile
 
 ---
 
@@ -172,30 +232,17 @@ http://127.0.0.1:5006/profile
 
 ---
 
-☁️ Deployment
+🎯 Why This Project Matters
 
-The application is deployed using Render.
+Customer churn is an important business problem because retaining existing customers is often more cost-effective than acquiring new ones.
 
-The deployment process includes:
+This project demonstrates how Machine Learning can be used to:
 
-1. Source code hosted on GitHub
-2. Dependencies installed using "requirements.txt"
-3. Flask application served using Gunicorn
-4. Machine Learning model loaded by the application
-5. Application deployed to a public Render URL
-
----
-
-🎯 Business Use Case
-
-Customer churn prediction can help businesses:
-
-- Identify customers at risk of leaving
-- Prioritize retention campaigns
-- Offer personalized incentives
-- Improve customer satisfaction
-- Reduce customer acquisition costs
-- Make data-driven retention decisions
+- Analyze customer behavior
+- Identify potential churners
+- Estimate churn probability
+- Classify customer risk
+- Support data-driven retention strategies
 
 ---
 
