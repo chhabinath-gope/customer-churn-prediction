@@ -46,21 +46,7 @@ This project combines:
 
 🖥️ Application Screenshots
 
-👤 Customer Profile
-
-"Customer Profile" (https://raw.githubusercontent.com/chhabinath-gope/customer-churn-prediction/main/profile.png)
-
-🛠️ Services & Support
-
-"Services & Support" (https://raw.githubusercontent.com/chhabinath-gope/customer-churn-prediction/main/services.png)
-
-💳 Contract & Billing
-
-"Contract & Billing" (https://raw.githubusercontent.com/chhabinath-gope/customer-churn-prediction/main/billing.png)
-
-🔮 Prediction Result
-
-"Prediction Result" (https://raw.githubusercontent.com/chhabinath-gope/customer-churn-prediction/main/prediction-result.png)
+![Customer Profile](https://raw.githubusercontent.com/chhabinath-gope/customer-churn-prediction/main/profile.png)
 
 ---
 
