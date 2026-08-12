@@ -663,4 +663,1865 @@ tr:nth-child(even) {
 
 .best {
     font-weight: bold;
-    color: #4f
+    color: #4f46e5;
+}
+
+.info-box {
+    margin-top: 13px;
+
+    padding: 11px;
+
+    background: #f8fafc;
+
+    border-left: 4px solid #6366f1;
+
+    border-radius: 10px;
+
+    font-size: 11px;
+
+    color: #475569;
+
+    line-height: 1.5;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+    text-align: center;
+
+    color: #94a3b8;
+
+    margin-top: 7px;
+
+    font-size: 9px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:700px) {
+
+    body {
+        padding: 8px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .line {
+        width: 22px;
+    }
+
+    .result-top {
+        grid-template-columns: 1fr;
+    }
+
+    .summary {
+        grid-template-columns: 1fr;
+    }
+
+    .navigation {
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        flex: 1;
+    }
+}
+
+</style>
+
+
+<script>
+
+/* =========================
+   PREDICTION LOADING
+========================= */
+
+function startPrediction(button) {
+
+    button.classList.add("loading-active");
+
+    button.disabled = true;
+
+    setTimeout(function() {
+
+        button.form.submit();
+
+    }, 450);
+}
+
+
+/* =========================
+   ANIMATED PROBABILITY
+========================= */
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    const number =
+        document.querySelector(".probability-number");
+
+    if (!number) return;
+
+    const target =
+        parseFloat(number.dataset.value);
+
+    let current = 0;
+
+    const duration = 1100;
+
+    const start = performance.now();
+
+    function animate(now) {
+
+        const progress =
+            Math.min(
+                (now - start) / duration,
+                1
+            );
+
+        current = target * progress;
+
+        number.textContent =
+            current.toFixed(2) + "%";
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    }
+
+    requestAnimationFrame(animate);
+
+});
+
+
+/* =========================
+   SELECT HIGHLIGHT
+========================= */
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    document
+        .querySelectorAll("select")
+        .forEach(function(select) {
+
+            function update() {
+
+                select.style.borderColor =
+                    "#6366f1";
+
+                select.style.background =
+                    "#eef2ff";
+            }
+
+            update();
+
+            select.addEventListener(
+                "change",
+                update
+            );
+
+        });
+
+});
+
+</script>
+"""
+
+
+# ============================================================
+# PROGRESS BAR
+# ============================================================
+
+def progress(step):
+
+    result = '<div class="progress">'
+
+    for i in range(1, 5):
+
+        active = "active" if i <= step else ""
+
+        result += f"""
+        <div>
+            <div class="circle {active}">
+                {i}
+            </div>
+        </div>
+        """
+
+        if i < 4:
+
+            line = "active" if i < step else ""
+
+            result += f"""
+            <div class="line {line}"></div>
+            """
+
+    result += "</div>"
+
+    return result
+
+
+# ============================================================
+# STEP 1 — PROFILE
+# ============================================================
+
+@app.route("/")
+def start():
+
+    session.clear()
+
+    return redirect(url_for("profile"))
+
+
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+
+    if request.method == "POST":
+
+        fields = [
+            "gender",
+            "SeniorCitizen",
+            "Partner",
+            "Dependents",
+            "tenure",
+            "PhoneService"
+        ]
+
+        for key in fields:
+
+            value = request.form.get(key)
+
+            if value is None:
+                return "Missing form field: " + key, 400
+
+            session[key] = value
+
+        return redirect(url_for("services"))
+
+    data = {
+
+        "gender":
+            session.get("gender", "Female"),
+
+        "SeniorCitizen":
+            session.get("SeniorCitizen", "0"),
+
+        "Partner":
+            session.get("Partner", "No"),
+
+        "Dependents":
+            session.get("Dependents", "No"),
+
+        "tenure":
+            session.get("tenure", ""),
+
+        "PhoneService":
+            session.get("PhoneService", "Yes")
+    }
+
+    return render_template_string(
+        COMMON + r"""
+
+<div class="page">
+
+<div class="wrapper">
+
+<div class="header">
+
+<div class="badge">
+CUSTOMER ANALYTICS • ML MODEL
+</div>
+
+<h1>
+Customer Churn Prediction
+</h1>
+
+<p>
+Predict customer churn probability using machine learning
+</p>
+
+</div>
+
+{{ progress|safe }}
+
+<div class="card">
+
+<div class="step-title">
+
+<div class="step-number">
+1
+</div>
+
+<h2>
+Customer Profile
+</h2>
+
+</div>
+
+<form method="POST">
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>Gender</label>
+
+<select name="gender">
+
+<option value="Female"
+{% if data.gender == "Female" %}selected{% endif %}>
+👩 Female
+</option>
+
+<option value="Male"
+{% if data.gender == "Male" %}selected{% endif %}>
+👨 Male
+</option>
+
+</select>
+
+</div>
+
+
+<div class="field">
+
+<label>Senior Citizen</label>
+
+<select name="SeniorCitizen">
+
+<option value="0"
+{% if data.SeniorCitizen == "0" %}selected{% endif %}>
+🟢 No
+</option>
+
+<option value="1"
+{% if data.SeniorCitizen == "1" %}selected{% endif %}>
+🔴 Yes
+</option>
+
+</select>
+
+</div>
+
+
+<div class="field">
+
+<label>Partner</label>
+
+<select name="Partner">
+
+<option value="No"
+{% if data.Partner == "No" %}selected{% endif %}>
+🔵 No
+</option>
+
+<option value="Yes"
+{% if data.Partner == "Yes" %}selected{% endif %}>
+🟣 Yes
+</option>
+
+</select>
+
+</div>
+
+
+<div class="field">
+
+<label>Dependents</label>
+
+<select name="Dependents">
+
+<option value="No"
+{% if data.Dependents == "No" %}selected{% endif %}>
+🔵 No
+</option>
+
+<option value="Yes"
+{% if data.Dependents == "Yes" %}selected{% endif %}>
+🟣 Yes
+</option>
+
+</select>
+
+</div>
+
+
+<div class="field">
+
+<label>Tenure (Months)</label>
+
+<input
+type="number"
+name="tenure"
+min="0"
+value="{{ data.tenure }}"
+placeholder="Enter tenure"
+required
+>
+
+</div>
+
+
+<div class="field">
+
+<label>Phone Service</label>
+
+<select name="PhoneService">
+
+<option value="No"
+{% if data.PhoneService == "No" %}selected{% endif %}>
+🔵 No
+</option>
+
+<option value="Yes"
+{% if data.PhoneService == "Yes" %}selected{% endif %}>
+🟣 Yes
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<div class="navigation">
+
+<button
+class="btn next"
+type="submit">
+Continue →
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+<div class="footer">
+Customer Churn Prediction • Machine Learning Portfolio Project
+</div>
+
+</div>
+
+</div>
+
+""",
+        progress=progress(1),
+        data=data
+    )
+
+
+# ============================================================
+# STEP 2 — SERVICES
+# ============================================================
+
+@app.route("/services", methods=["GET", "POST"])
+def services():
+
+    if request.method == "POST":
+
+        fields = [
+            "MultipleLines",
+            "InternetService",
+            "OnlineSecurity",
+            "OnlineBackup",
+            "DeviceProtection",
+            "TechSupport",
+            "StreamingTV",
+            "StreamingMovies"
+        ]
+
+        for key in fields:
+
+            value = request.form.get(key)
+
+            if value is None:
+                return "Missing form field: " + key, 400
+
+            session[key] = value
+
+        return redirect(url_for("billing"))
+
+    defaults = {
+
+        "MultipleLines": "No",
+        "InternetService": "DSL",
+        "OnlineSecurity": "No",
+        "OnlineBackup": "No",
+        "DeviceProtection": "No",
+        "TechSupport": "No",
+        "StreamingTV": "No",
+        "StreamingMovies": "No"
+
+    }
+
+    data = {
+        key: session.get(key, value)
+        for key, value in defaults.items()
+    }
+
+    return render_template_string(
+        COMMON + r"""
+
+<div class="page">
+
+<div class="wrapper">
+
+<div class="header">
+
+<div class="badge">
+CUSTOMER SERVICES
+</div>
+
+<h1>
+Customer Churn Prediction
+</h1>
+
+<p>
+Services and support information
+</p>
+
+</div>
+
+{{ progress|safe }}
+
+<div class="card">
+
+<div class="step-title">
+
+<div class="step-number">
+2
+</div>
+
+<h2>
+Services & Support
+</h2>
+
+</div>
+
+<form method="POST">
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>Multiple Lines</label>
+
+<select name="MultipleLines">
+
+<option value="No"
+{% if data.MultipleLines == "No" %}selected{% endif %}>
+🔵 No
+</option>
+
+<option value="Yes"
+{% if data.MultipleLines == "Yes" %}selected{% endif %}>
+🟣 Yes
+</option>
+
+<option value="No phone service"
+{% if data.MultipleLines == "No phone service" %}selected{% endif %}>
+⚪ No phone service
+</option>
+
+</select>
+
+</div>
+
+
+<div class="field">
+
+<label>Internet Service</label>
+
+<select name="InternetService">
+
+<option value="DSL"
+{% if data.InternetService == "DSL" %}selected{% endif %}>
+🔵 DSL
+</option>
+
+<option value="Fiber optic"
+{% if data.InternetService == "Fiber optic" %}selected{% endif %}>
+🟣 Fiber optic
+</option>
+
+<option value="No"
+{% if data.InternetService == "No" %}selected{% endif %}>
+⚪ No internet service
+</option>
+
+</select>
+
+</div>
+
+
+{% for name, label in [
+
+("OnlineSecurity","Online Security"),
+("OnlineBackup","Online Backup"),
+("DeviceProtection","Device Protection"),
+("TechSupport","Tech Support"),
+("StreamingTV","Streaming TV"),
+("StreamingMovies","Streaming Movies")
+
+] %}
+
+<div class="field">
+
+<label>{{ label }}</label>
+
+<select name="{{ name }}">
+
+<option value="No"
+{% if data[name] == "No" %}selected{% endif %}>
+🔵 No
+</option>
+
+<option value="Yes"
+{% if data[name] == "Yes" %}selected{% endif %}>
+🟣 Yes
+</option>
+
+<option value="No internet service"
+{% if data[name] == "No internet service" %}selected{% endif %}>
+⚪ No internet service
+</option>
+
+</select>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<div class="navigation">
+
+<a
+href="/profile"
+class="btn previous">
+← Previous
+</a>
+
+<button
+class="btn next"
+type="submit">
+Continue →
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+<div class="footer">
+Customer Churn Prediction • Machine Learning Portfolio Project
+</div>
+
+</div>
+
+</div>
+
+""",
+        progress=progress(2),
+        data=data
+    )
+
+
+# ============================================================
+# STEP 3 — BILLING
+# ============================================================
+
+@app.route("/billing", methods=["GET", "POST"])
+def billing():
+
+    if request.method == "POST":
+
+        fields = [
+            "Contract",
+            "PaperlessBilling",
+            "PaymentMethod",
+            "MonthlyCharges",
+            "TotalCharges"
+        ]
+
+        for key in fields:
+
+            value = request.form.get(key)
+
+            if value is None:
+                return "Missing form field: " + key, 400
+
+            session[key] = value
+
+        # Validate numeric values before prediction.
+        try:
+
+            monthly = float(session["MonthlyCharges"])
+            total = float(session["TotalCharges"])
+
+            if monthly < 0 or total < 0:
+                return "Charges cannot be negative.", 400
+
+        except ValueError:
+
+            return "Please enter valid numeric charges.", 400
+
+        return redirect(url_for("predict"))
+
+    data = {
+
+        "Contract":
+            session.get(
+                "Contract",
+                "Month-to-month"
+            ),
+
+        "PaperlessBilling":
+            session.get(
+                "PaperlessBilling",
+                "Yes"
+            ),
+
+        "PaymentMethod":
+            session.get(
+                "PaymentMethod",
+                "Electronic check"
+            ),
+
+        "MonthlyCharges":
+            session.get(
+                "MonthlyCharges",
+                ""
+            ),
+
+        "TotalCharges":
+            session.get(
+                "TotalCharges",
+                ""
+            )
+    }
+
+    return render_template_string(
+        COMMON + r"""
+
+<div class="page">
+
+<div class="wrapper">
+
+<div class="header">
+
+<div class="badge">
+BILLING ANALYTICS
+</div>
+
+<h1>
+Customer Churn Prediction
+</h1>
+
+<p>
+Contract and billing information
+</p>
+
+</div>
+
+{{ progress|safe }}
+
+<div class="card">
+
+<div class="step-title">
+
+<div class="step-number">
+3
+</div>
+
+<h2>
+Contract & Billing
+</h2>
+
+</div>
+
+<form method="POST">
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>Contract</label>
+
+<select name="Contract">
+
+<option value="Month-to-month"
+{% if data.Contract == "Month-to-month" %}selected{% endif %}>
+🟠 Month-to-month
+</option>
+
+<option value="One year"
+{% if data.Contract == "One year" %}selected{% endif %}>
+🔵 One year
+</option>
+
+<option value="Two year"
+{% if data.Contract == "Two year" %}selected{% endif %}>
+🟢 Two year
+</option>
+
+</select>
+
+</div>
+
+
+<div class="field">
+
+<label>Paperless Billing</label>
+
+<select name="PaperlessBilling">
+
+<option value="No"
+{% if data.PaperlessBilling == "No" %}selected{% endif %}>
+🔵 No
+</option>
+
+<option value="Yes"
+{% if data.PaperlessBilling == "Yes" %}selected{% endif %}>
+🟣 Yes
+</option>
+
+</select>
+
+</div>
+
+
+<div class="field">
+
+<label>Payment Method</label>
+
+<select name="PaymentMethod">
+
+<option value="Electronic check"
+{% if data.PaymentMethod == "Electronic check" %}selected{% endif %}>
+🟣 Electronic check
+</option>
+
+<option value="Mailed check"
+{% if data.PaymentMethod == "Mailed check" %}selected{% endif %}>
+🔵 Mailed check
+</option>
+
+<option value="Bank transfer (automatic)"
+{% if data.PaymentMethod == "Bank transfer (automatic)" %}selected{% endif %}>
+🟢 Bank transfer
+</option>
+
+<option value="Credit card (automatic)"
+{% if data.PaymentMethod == "Credit card (automatic)" %}selected{% endif %}>
+🟠 Credit card
+</option>
+
+</select>
+
+</div>
+
+
+<div class="field">
+
+<label>Monthly Charges</label>
+
+<input
+type="number"
+step="0.01"
+min="0"
+name="MonthlyCharges"
+value="{{ data.MonthlyCharges }}"
+placeholder="Enter monthly charges"
+required
+>
+
+</div>
+
+
+<div class="field">
+
+<label>Total Charges</label>
+
+<input
+type="number"
+step="0.01"
+min="0"
+name="TotalCharges"
+value="{{ data.TotalCharges }}"
+placeholder="Enter total charges"
+required
+>
+
+</div>
+
+</div>
+
+
+<div class="navigation">
+
+<a
+href="/services"
+class="btn previous">
+← Previous
+</a>
+
+<button
+class="btn predict"
+type="submit"
+onclick="startPrediction(this)">
+
+<span class="normal-text">
+🔮 Predict Churn
+</span>
+
+<span class="loading">
+<span class="spinner"></span>
+Analyzing...
+</span>
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+<div class="footer">
+Customer Churn Prediction • Machine Learning Portfolio Project
+</div>
+
+</div>
+
+</div>
+
+""",
+        progress=progress(3),
+        data=data
+    )
+
+
+# ============================================================
+# CREATE RAW CUSTOMER DATA
+# ============================================================
+
+def get_customer_dataframe():
+
+    data = {
+
+        "gender":
+            session["gender"],
+
+        "SeniorCitizen":
+            int(session["SeniorCitizen"]),
+
+        "Partner":
+            session["Partner"],
+
+        "Dependents":
+            session["Dependents"],
+
+        "tenure":
+            int(session["tenure"]),
+
+        "PhoneService":
+            session["PhoneService"],
+
+        "MultipleLines":
+            session["MultipleLines"],
+
+        "InternetService":
+            session["InternetService"],
+
+        "OnlineSecurity":
+            session["OnlineSecurity"],
+
+        "OnlineBackup":
+            session["OnlineBackup"],
+
+        "DeviceProtection":
+            session["DeviceProtection"],
+
+        "TechSupport":
+            session["TechSupport"],
+
+        "StreamingTV":
+            session["StreamingTV"],
+
+        "StreamingMovies":
+            session["StreamingMovies"],
+
+        "Contract":
+            session["Contract"],
+
+        "PaperlessBilling":
+            session["PaperlessBilling"],
+
+        "PaymentMethod":
+            session["PaymentMethod"],
+
+        "MonthlyCharges":
+            float(session["MonthlyCharges"]),
+
+        "TotalCharges":
+            float(session["TotalCharges"])
+
+    }
+
+    return pd.DataFrame([data])
+
+
+# ============================================================
+# MODEL INPUT COMPATIBILITY
+# ============================================================
+
+def prepare_model_input(raw_df):
+
+    # If model is a Pipeline,
+    # send original DataFrame.
+    if hasattr(model, "named_steps"):
+
+        return raw_df
+
+    # If trained model contains feature names,
+    # reproduce encoded structure.
+    if hasattr(model, "feature_names_in_"):
+
+        expected = list(model.feature_names_in_)
+
+        encoded = pd.get_dummies(
+            raw_df,
+            drop_first=False
+        )
+
+        final = pd.DataFrame(
+            0,
+            index=raw_df.index,
+            columns=expected
+        )
+
+        for column in expected:
+
+            if column in encoded.columns:
+                final[column] = encoded[column]
+
+        return final
+
+    return raw_df
+
+
+# ============================================================
+# GET CHURN PROBABILITY
+# ============================================================
+
+def get_churn_probability(model_input, prediction):
+
+    if not hasattr(model, "predict_proba"):
+        return float(prediction)
+
+    probabilities = model.predict_proba(model_input)[0]
+
+    # Prefer class 1 if the model exposes class labels.
+    if hasattr(model, "classes_"):
+
+        classes = list(model.classes_)
+
+        if 1 in classes:
+
+            churn_index = classes.index(1)
+
+            return float(probabilities[churn_index])
+
+    # Safe fallback for binary classifiers.
+    if len(probabilities) >= 2:
+
+        return float(probabilities[1])
+
+    return float(probabilities[0])
+
+
+# ============================================================
+# PREDICTION
+# ============================================================
+
+@app.route("/predict")
+def predict():
+
+    required = [
+
+        "gender",
+        "SeniorCitizen",
+        "Partner",
+        "Dependents",
+        "tenure",
+        "PhoneService",
+        "MultipleLines",
+        "InternetService",
+        "OnlineSecurity",
+        "OnlineBackup",
+        "DeviceProtection",
+        "TechSupport",
+        "StreamingTV",
+        "StreamingMovies",
+        "Contract",
+        "PaperlessBilling",
+        "PaymentMethod",
+        "MonthlyCharges",
+        "TotalCharges"
+
+    ]
+
+    if not all(
+        key in session
+        for key in required
+    ):
+
+        return redirect(
+            url_for("profile")
+        )
+
+    try:
+
+        raw_df = get_customer_dataframe()
+
+        model_input = prepare_model_input(raw_df)
+
+        prediction = model.predict(
+            model_input
+        )[0]
+
+        probability_value = get_churn_probability(
+            model_input,
+            prediction
+        )
+
+    except Exception as e:
+
+        return render_template_string(
+            """
+            <html>
+            <head>
+            <meta name="viewport"
+                  content="width=device-width, initial-scale=1.0">
+
+            <style>
+
+            body {
+                font-family: Arial;
+                background: #0f172a;
+                color: white;
+                padding: 30px;
+            }
+
+            .box {
+                max-width: 850px;
+                margin: auto;
+                background: #1e293b;
+                padding: 25px;
+                border-radius: 15px;
+            }
+
+            h2 {
+                color: #38bdf8;
+            }
+
+            pre {
+                white-space: pre-wrap;
+                background: #020617;
+                padding: 15px;
+                border-radius: 10px;
+                overflow-x: auto;
+            }
+
+            a {
+                color: #38bdf8;
+            }
+
+            </style>
+
+            </head>
+
+            <body>
+
+            <div class="box">
+
+            <h2>
+            Model Input Error
+            </h2>
+
+            <p>
+            The application loaded the model successfully,
+            but the model rejected the supplied input format.
+            </p>
+
+            <pre>{{ error }}</pre>
+
+            <p>
+            <b>Model file:</b>
+            {{ model_file }}
+            </p>
+
+            <br>
+
+            <a href="/profile">
+            ← Return to Customer Profile
+            </a>
+
+            </div>
+
+            </body>
+            </html>
+            """,
+            error=str(e),
+            model_file=MODEL_FILE
+        ), 500
+
+
+    # Keep probability inside valid range.
+    probability_value = max(
+        0.0,
+        min(1.0, probability_value)
+    )
+
+    probability = round(
+        probability_value * 100,
+        2
+    )
+
+
+    # ========================================================
+    # PREDICTION LABEL
+    # ========================================================
+
+    try:
+        prediction_int = int(prediction)
+    except Exception:
+        prediction_int = 1 if probability_value >= 0.5 else 0
+
+
+    if prediction_int == 1:
+
+        result = "Churn: Yes"
+        icon = "⚠️"
+
+    else:
+
+        result = "Churn: No"
+        icon = "✓"
+
+
+    # ========================================================
+    # RISK CLASSIFICATION
+    # ========================================================
+
+    if probability_value >= 0.60:
+
+        risk = "High Risk"
+        risk_class = "high"
+
+        recommendation = (
+
+            "This customer has a high estimated "
+            "churn risk. Consider a personalized "
+            "retention offer, service support or "
+            "a long-term contract incentive."
+
+        )
+
+    elif probability_value >= 0.30:
+
+        risk = "Medium Risk"
+        risk_class = "medium"
+
+        recommendation = (
+
+            "This customer has a moderate churn "
+            "risk. Monitor engagement and consider "
+            "targeted customer retention strategies."
+
+        )
+
+    else:
+
+        risk = "Low Risk"
+        risk_class = "low"
+
+        recommendation = (
+
+            "This customer has a relatively low "
+            "churn risk. Continue regular engagement "
+            "and maintain service quality."
+
+        )
+
+
+    return render_template_string(
+
+        COMMON + r"""
+
+<div class="page">
+
+<div class="wrapper">
+
+<div class="header">
+
+<div class="badge">
+PREDICTION COMPLETE
+</div>
+
+<h1>
+Customer Churn Prediction
+</h1>
+
+<p>
+Machine learning analysis result
+</p>
+
+</div>
+
+{{ progress|safe }}
+
+<div class="card result-card">
+
+<div class="result-top">
+
+<div class="result-left">
+
+<div class="result-icon">
+{{ icon }}
+</div>
+
+<h2>
+Prediction
+</h2>
+
+<div class="prediction">
+{{ result }}
+</div>
+
+<div class="probability-label">
+Churn Probability
+</div>
+
+<div
+class="probability probability-number"
+data-value="{{ probability }}"
+>
+0.00%
+</div>
+
+<div class="bar">
+<div class="fill"></div>
+</div>
+
+<div class="risk {{ risk_class }}">
+{{ risk }}
+</div>
+
+</div>
+
+
+<div class="result-right">
+
+<h3>
+💡 Recommended Action
+</h3>
+
+<p>
+{{ recommendation }}
+</p>
+
+
+<div class="summary">
+
+<div class="summary-box">
+
+<small>
+Contract
+</small>
+
+<strong>
+{{ contract }}
+</strong>
+
+</div>
+
+
+<div class="summary-box">
+
+<small>
+Tenure
+</small>
+
+<strong>
+{{ tenure }} months
+</strong>
+
+</div>
+
+
+<div class="summary-box">
+
+<small>
+Monthly Charges
+</small>
+
+<strong>
+₹{{ monthly }}
+</strong>
+
+</div>
+
+</div>
+
+
+<div class="model-info">
+
+<b>Model:</b>
+Customer Churn Machine Learning Classifier
+
+<br>
+
+<b>Model file:</b>
+{{ model_file }}
+
+<br>
+
+<b>Output:</b>
+Probability-based customer risk assessment.
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="navigation">
+
+<a
+href="/billing"
+class="btn previous">
+← Previous
+</a>
+
+<a
+href="/performance"
+class="btn performance">
+📊 Model Performance
+</a>
+
+<a
+href="/new"
+class="btn new">
++ New Prediction
+</a>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+Customer Churn Prediction •
+Machine Learning Portfolio Project
+
+</div>
+
+</div>
+
+</div>
+
+""",
+
+        progress=progress(4),
+
+        result=result,
+
+        probability=probability,
+
+        risk=risk,
+
+        risk_class=risk_class,
+
+        recommendation=recommendation,
+
+        icon=icon,
+
+        contract=session["Contract"],
+
+        tenure=session["tenure"],
+
+        monthly=session["MonthlyCharges"],
+
+        model_file=MODEL_FILE
+
+    )
+
+
+# ============================================================
+# PERFORMANCE PAGE
+# ============================================================
+
+@app.route("/performance")
+def performance():
+
+    return render_template_string(
+
+        COMMON + r"""
+
+<div class="page">
+
+<div class="wrapper">
+
+<div class="header">
+
+<div class="badge">
+MODEL EVALUATION
+</div>
+
+<h1>
+Model Performance
+</h1>
+
+<p>
+Comparison of machine learning models
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="step-title">
+
+<div class="step-number">
+📊
+</div>
+
+<h2>
+Model Comparison
+</h2>
+
+</div>
+
+
+<div class="table-wrapper">
+
+<table>
+
+<tr>
+
+<th>Model</th>
+<th>Accuracy</th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F1 Score</th>
+<th>ROC-AUC</th>
+
+</tr>
+
+
+<tr>
+
+<td>
+Logistic Regression
+</td>
+
+<td>
+80.7%
+</td>
+
+<td>
+66.0%
+</td>
+
+<td>
+56.1%
+</td>
+
+<td>
+60.7%
+</td>
+
+<td>
+84.2%
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Decision Tree
+</td>
+
+<td>
+79.4%
+</td>
+
+<td>
+63.1%
+</td>
+
+<td>
+54.0%
+</td>
+
+<td>
+58.2%
+</td>
+
+<td>
+82.7%
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Random Forest
+</td>
+
+<td>
+80.3%
+</td>
+
+<td>
+67.5%
+</td>
+
+<td>
+50.0%
+</td>
+
+<td>
+57.5%
+</td>
+
+<td class="best">
+84.4%
+</td>
+
+</tr>
+
+
+<tr>
+
+<td class="best">
+Balanced Logistic Regression
+</td>
+
+<td>
+73.9%
+</td>
+
+<td>
+50.5%
+</td>
+
+<td class="best">
+78.3%
+</td>
+
+<td>
+61.4%
+</td>
+
+<td>
+84.2%
+</td>
+
+</tr>
+
+</table>
+
+</div>
+
+
+<div class="info-box">
+
+<b>
+Why Balanced Logistic Regression?
+</b>
+
+<br><br>
+
+The balanced model improves
+<b>Recall for churn customers</b>.
+
+A higher recall means the model can identify
+more customers who are actually likely to churn.
+
+This is especially useful for customer retention,
+where missing a potential churn customer can be
+more costly than contacting an additional customer.
+
+<br><br>
+
+<b>
+Selected Model:
+</b>
+Balanced Logistic Regression
+
+<br>
+
+<b>
+Recall:
+</b>
+78.3%
+
+<br>
+
+<b>
+ROC-AUC:
+</b>
+84.2%
+
+</div>
+
+
+<div class="navigation">
+
+<a
+href="/"
+class="btn previous">
+← Start
+</a>
+
+<a
+href="/new"
+class="btn new">
++ New Prediction
+</a>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+Customer Churn Prediction •
+Machine Learning Portfolio Project
+
+</div>
+
+</div>
+
+</div>
+
+"""
+
+    )
+
+
+# ============================================================
+# NEW PREDICTION
+# ============================================================
+
+@app.route("/new")
+def new_prediction():
+
+    session.clear()
+
+    return redirect(
+        url_for("profile")
+    )
+
+
+# ============================================================
+# NO CACHE
+# ============================================================
+
+@app.after_request
+def no_cache(response):
+
+    response.headers[
+        "Cache-Control"
+    ] = "no-store, no-cache, must-revalidate, max-age=0"
+
+    response.headers[
+        "Pragma"
+    ] = "no-cache"
+
+    response.headers[
+        "Expires"
+    ] = "0"
+
+    return response
+
+
+# ============================================================
+# LOCAL BROWSER
+# ============================================================
+
+def open_browser():
+
+    time.sleep(1.5)
+
+    webbrowser.open(
+        "http://127.0.0.1:5006"
+    )
+
+
+# ============================================================
+# RUN APPLICATION
+# ============================================================
+
+if __name__ == "__main__":
+
+    port = int(
+        os.environ.get(
+            "PORT",
+            5006
+        )
+    )
+
+    print()
+    print("=" * 55)
+    print(" CUSTOMER CHURN PREDICTION")
+    print("=" * 55)
+    print()
+    print("Model:", MODEL_FILE)
+    print()
+    print("Starting application...")
+    print(f"URL: http://127.0.0.1:{port}")
+    print()
+
+    # Open browser only during local development.
+    # Render/cloud deployment won't open a browser.
+    if not os.environ.get("RENDER"):
+
+        threading.Thread(
+            target=open_browser,
+            daemon=True
+        ).start()
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=False,
+        use_reloader=False
+    )
